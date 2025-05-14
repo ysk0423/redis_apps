@@ -7,10 +7,18 @@
 
 ## 環境構築
 
-### ライブラリ
+### 仮想環境(poetry)
+
+poetryのインストール(インストール済みの場合は不要)
 
 ```zsh
-  pip install flask aioredis pymysql
+  curl -sSL https://install.python-poetry.org | python3 -
+```
+
+ライブラリのインストール
+
+```zsh
+poetry install  
 ```
 
 ### docker
