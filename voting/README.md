@@ -33,7 +33,7 @@ docker exec -it [コンテナID] bash
 mysql -u root -pmy-secret-pw
 CREATE USER app@'%' IDENTIFIED BY 'P@ssw0rd';
 GRANT ALL PRIVILEGES on voting.* to app@'%';
-CREATE DATABASE sample DEFAULT CHARACTER SET utf8mb4;
+CREATE DATABASE voting DEFAULT CHARACTER SET utf8mb4;
 USE voting
 CREATE TABLE votes (
      id INT NOT NULL AUTO_INCREMENT,
@@ -50,15 +50,6 @@ docker run -it --name redis_server -p 6379:6379 --rm redis
 ```
 
 ## Server起動
-
-### 起動準備
-
-```zsh
-pip install hypercorn
-pip install 'flask[async]'
-```
-
-### 起動
 
 ```zsh
  hypercorn main:app
