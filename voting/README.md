@@ -52,5 +52,5 @@ docker run -it --name redis_server -p 6379:6379 --rm redis
 ## Server起動
 
 ```zsh
- hypercorn main:app
+ poetry run python main.py
 ```
