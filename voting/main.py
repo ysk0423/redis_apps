@@ -40,6 +40,7 @@ async def register_with_mysql(voter, candidate):
   with app.mysql.cursor() as cursor:
     sql = "INSERT INTO votes (candidate, voter) VALUES (%s, %s)"
     cursor.execute(sql, (candidate, voter))
+  app.mysql.commit()
 
 
 async def get_candidates_from_redis():
