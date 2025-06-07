@@ -43,8 +43,9 @@ async def read_message(websocket: Websocket, join_info: dict):
                 now = datetime.datetime.now()
 
                 # チャンネルに参加しているユーザーに通知
-                await websocket.send_text(f'{now.strftime("%Y-%m-%d %H:%M:%S")} {event[b'msg'].decode("utf-8")}')
-
+                msg_decoded = event[b'msg'].decode("utf-8")
+                await websocket.send_text(f'{now.strftime("%Y-%m-%d %H:%M:%S")} {msg_decoded}')
+              
                 stream_id = event_id
                 if is_first_message:
                     is_first_message = False
