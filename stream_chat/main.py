@@ -3,7 +3,13 @@ import datetime
 
 import aioredis
 from quart import Quart, Websocket, render_template, websocket
-import uvloop
+
+# uvloop is an optional dependency. If it isn't installed we simply
+# fall back to the default event loop implementation.
+try:
+    import uvloop
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    uvloop = None
 
 
 app = Quart(__name__)
@@ -96,7 +102,8 @@ async def websocket_endpoint() -> None:
     """WebSocketによる通信に使用するエンドポイント"""
     join_info = await get_joininfo(websocket.args.get('username'), websocket.args.get('room'))
     await websocket.accept()
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    if uvloop is not None:
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     # メッセージの読み取りと書き込みを同時に実行
     await asyncio.gather(
         read_message(websocket, join_info),
