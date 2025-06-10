@@ -23,12 +23,12 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-      var was = null
+      var ws = null
       function joinRoom(event) {
         event.preventDefault();
-        if (was != null) ws.close();
+        if (ws != null) ws.close();
 
-        ws = new WebSocket('ws://127.0.0.1:8080/ws?' + $('join-info').serialize());
+        ws = new WebSocket('ws://127.0.0.1:8080/ws?' + $('#join-info').serialize());
         ws.onmessage = function(event) {
           $('#messages').append($('<li>').text(event.data));
           $('#messages').scrollTop($('#messages')[0].scrollHeight);

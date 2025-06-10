@@ -1,5 +1,9 @@
+import asyncio
+import datetime
+
 import aioredis
-from quart import Quart, render_template
+from quart import Quart, Websocket, render_template, websocket
+import uvloop
 
 
 app = Quart(__name__)
@@ -44,7 +48,7 @@ async def read_message(websocket: Websocket, join_info: dict):
 
                 # チャンネルに参加しているユーザーに通知
                 msg_decoded = event[b'msg'].decode("utf-8")
-                await websocket.send_text(f'{now.strftime("%Y-%m-%d %H:%M:%S")} {msg_decoded}')
+                await websocket.send(f'{now.strftime("%Y-%m-%d %H:%M:%S")} {msg_decoded}')
               
                 stream_id = event_id
                 if is_first_message:
@@ -62,7 +66,7 @@ async def write_message(websocket: Websocket, join_info: dict):
     connected = True
     while connected:
         try:
-            message = await websocket.receive_text()
+            message = await websocket.receive()
             await app.redis.xadd(join_info['room'], {'username': join_info['username'], 'msg': message}, id=b'*', maxlen=STREAM_MAX_LEN)
         except:
             # ブラウザを閉じるなど、WebSocketが切断された場合
@@ -87,10 +91,10 @@ async def get_joininfo(username: str = None, room: str = None):
     return {"username": username, "room": room}
 
 
-async def websocket_endpoint(websocket: Websocket, join_info: dict = Depends(get_joininfo)):
-    """
-    WebSocketによる通信に使用するエンドポイント
-    """
+@app.websocket('/ws')
+async def websocket_endpoint() -> None:
+    """WebSocketによる通信に使用するエンドポイント"""
+    join_info = await get_joininfo(websocket.args.get('username'), websocket.args.get('room'))
     await websocket.accept()
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     # メッセージの読み取りと書き込みを同時に実行
@@ -101,4 +105,4 @@ async def websocket_endpoint(websocket: Websocket, join_info: dict = Depends(get
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
