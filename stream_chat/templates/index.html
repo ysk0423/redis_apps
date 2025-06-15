@@ -39,7 +39,7 @@
         var username = $('#username').val();
         var message = $('#messageText').val();
         if (message.trim() === '') return;
-        ws.send(username + ':' + message);
+        ws.send(username + ':　' + message);
         $('#messageText').val('');
         event.preventDefault();
       }

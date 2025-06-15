@@ -39,6 +39,7 @@ async def read_message(websocket: Websocket, join_info: dict):
             count=count,
             block=100000,
         )
+        
         for room, events in results:
             if join_info['room'] != room.decode('utf-8'):
                 continue
@@ -54,7 +55,7 @@ async def read_message(websocket: Websocket, join_info: dict):
                 if is_first_message:
                     is_first_message = False
                     
-        connected = False
+            # connected = False
 
 
 async def write_message(websocket: Websocket, join_info: dict):
@@ -80,7 +81,7 @@ async def notify(join_info: dict, action: str):
     チャンネルに参加しているユーザーに通知を送信する
     """
     now = datetime.datetime.now()
-    message = f'{now.strftime("%Y-%m-%d %H:%M:%S")} {join_info["username"]} has {action}.'
+    message = f'{join_info["username"]} has {action}.'
     await app.redis.xadd(join_info['room'], {'msg': message}, id=b'*', maxlen=STREAM_MAX_LEN)
 
 
@@ -94,7 +95,10 @@ async def get_joininfo(username: str = None, room: str = None):
 @app.websocket('/ws')
 async def websocket_endpoint() -> None:
     """WebSocketによる通信に使用するエンドポイント"""
-    join_info = await get_joininfo(websocket.args.get('username'), websocket.args.get('room'))
+    username = websocket.args.get('username')
+    room = websocket.args.get('room')
+    join_info = await get_joininfo(username, room)
+
     await websocket.accept()
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     # メッセージの読み取りと書き込みを同時に実行
