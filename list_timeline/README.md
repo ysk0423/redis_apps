@@ -55,3 +55,19 @@ pip install 'flask[async]'
 ```zsh
  hypercorn main:app
 ```
+
+## Redisで利用している機能
+
+タイムラインはRedisの**List**で管理しています。新しい投稿を`RPUSH`で追加し、最新10件を`LRANGE`で取得します。さらに`EXPIRE`を設定して60秒で自動的に削除されるようにしています。
+
+例:
+
+```python
+# 投稿を追加
+await redis.rpush('timeline', 'user1: hello')
+await redis.expire('timeline', 60)
+
+# 最新10件を取得
+messages = await redis.lrange('timeline', 0, 9)
+```
+

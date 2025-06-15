@@ -54,3 +54,18 @@ docker run -it --name redis_server -p 6379:6379 --rm redis
 ```zsh
  poetry run python main.py
 ```
+
+## Redisで利用している機能
+
+投票情報はRedisの**Set**を用いて候補者ごとに投票者を記録しています。重複を防ぎ、`SCARD`で簡単に票数を数えることができます。
+
+例:
+
+```python
+# 候補者"alice"にuser1が投票
+await redis.sadd('candidate:alice', 'user1')
+
+# 投票数取得
+count = await redis.scard('candidate:alice')
+```
+
