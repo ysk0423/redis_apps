@@ -39,23 +39,25 @@ async def read_message(websocket: Websocket, join_info: dict):
             count=count,
             block=100000,
         )
-        
+
         for room, events in results:
             if join_info['room'] != room.decode('utf-8'):
                 continue
 
             for event_id, event in events:
                 now = datetime.datetime.now()
-
                 # チャンネルに参加しているユーザーに通知
                 msg_decoded = event[b'msg'].decode("utf-8")
-                await websocket.send(f'{now.strftime("%Y-%m-%d %H:%M:%S")} {msg_decoded}')
-              
+                try:
+                    await websocket.send(f'{now.strftime("%Y-%m-%d %H:%M:%S")} {msg_decoded}')
+                except Exception:
+                    # WebSocketが切断された場合
+                    connected = False
+                    return
+                # 最初のメッセージの場合はstream_idを更新   
                 stream_id = event_id
                 if is_first_message:
                     is_first_message = False
-                    
-            # connected = False
 
 
 async def write_message(websocket: Websocket, join_info: dict):
