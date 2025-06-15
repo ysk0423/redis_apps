@@ -43,3 +43,18 @@ docker run -it --name chat_server -p 6379:6379 --rm redis
 - チャットルーム退室
 - チャットルーム入室通知
 - チャットルーム退室通知
+
+## Redisで利用している機能
+
+チャットメッセージはRedisの**Stream**を利用して保存しています。`XADD`でメッセージを追加し、`XREAD`でリアルタイムに取得します。ストリームの長さは`maxlen`オプションで制限しています。
+
+例:
+
+```python
+# メッセージの追加
+await redis.xadd(room, {"username": username, "msg": message}, id="*", maxlen=STREAM_MAX_LEN)
+
+# 新しいメッセージの取得
+events = await redis.xread({room: "$"})
+```
+
